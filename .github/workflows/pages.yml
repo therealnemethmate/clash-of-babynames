@@ -24,16 +24,6 @@ jobs:
         with:
           version: latest
 
-      - name: Cache Dependencies
-        uses: actions/cache@v3
-        env:
-          cache-name: pnpm
-        with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
-
       - name: Install Dependencies
         run: pnpm i --frozen-lockfile
         
