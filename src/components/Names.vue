@@ -28,7 +28,7 @@ function appendName(collection: string, name: string) {
   <div>
     <h1>Girl names</h1>
     <p>Click the button to get a random name!</p>
-    <p>Current name: {{ randomName }}</p>
+    <h3>Current name: {{ randomName }}</h3>
     <button class="random-button" @click="randomName = pickRandomName()">Get a random name</button>
 
     <p>Click the button to save the current name to your collection.</p>
