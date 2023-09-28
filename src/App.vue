@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Names from './components/Names.vue'
+import Names from './components/BabyNamesView.vue';
 </script>
 
 <template>
