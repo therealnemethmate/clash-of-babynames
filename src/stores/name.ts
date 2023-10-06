@@ -5,9 +5,12 @@ import girlNamesData from '../assets/girl-names.json';
 import { createLocalStorageWatcher } from '../utils';
 
 export const useNameStore = defineStore('name', () => {
-    const names = ref(girlNamesData.names);
+    const namesFromLocalStorage = localStorage.getItem('names');
     const likedNamesFromLocalStorage = localStorage.getItem('likedNames') ?? '[]';
     const dislikedNamesFromLocalStorage = localStorage.getItem('dislikedNames') ?? '[]';
+
+    const names = ref<string[]>(namesFromLocalStorage ? JSON.parse(namesFromLocalStorage) : girlNamesData.names);
+    watch(names, createLocalStorageWatcher('names'));
 
     const likedNames = ref<string[]>(JSON.parse(likedNamesFromLocalStorage));
     watch(likedNames, createLocalStorageWatcher('likedNames'));
@@ -25,16 +28,7 @@ export const useNameStore = defineStore('name', () => {
             return 'No more names left :(';
         }
 
-        const randomIndex = Math.floor(Math.random() * names.value.length);
-        if (likedNames.value.includes(names.value[randomIndex])) {
-            return pickRandomName();
-        }
-        
-        if (dislikedNames.value.includes(names.value[randomIndex])) {
-            return pickRandomName();
-        }
-
-        return names.value[randomIndex];
+        return names.value[Math.floor(Math.random() * names.value.length)];
     }
     
     function appendInCollection(liked: boolean) {
