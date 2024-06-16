@@ -21,11 +21,16 @@ function handleDislike() {
 function toggleDislikedNames() {
     showDislikedNames.value = !showDislikedNames.value;
 }
+
+function handleReset() {
+    nameStore.clearLocalStorage();
+    window.location.reload();
+}
 </script>
 
 <template>
     <div>
-        <h1>Lány nevek</h1>
+        <h1>Fiú nevek</h1>
         <h3 class="current-name">Név: {{ nameStore.randomName }}</h3>
         <div class="button-container">
             <button class="like-button"
@@ -41,6 +46,11 @@ function toggleDislikedNames() {
             <ul class="names-list">
                 <li class="names-item" v-for="name in nameStore.likedNames" :key="name">{{ name }}</li>
             </ul>
+        </div>
+
+        <div class="danger-zone">
+            <h2>Danger zone</h2>
+            <button @click="handleReset">Alaphelyzetbe állítás</button>
         </div>
 
         <div class="names-list-container">
@@ -189,4 +199,9 @@ p {
     margin-bottom: 0.5em;
 }
 
+.danger-zone {
+    border: 1px solid red;
+    padding: 1em;
+    margin-top: 2em;
+}
 </style>

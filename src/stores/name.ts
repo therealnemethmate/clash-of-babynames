@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
-import girlNamesData from '../assets/girl-names.json';
+import boyNamesData from '../assets/boy-names.json';
+//import girlNamesData from '../assets/girl-names.json';
 import { createLocalStorageWatcher } from '../utils';
 
 export const useNameStore = defineStore('name', () => {
@@ -9,7 +10,8 @@ export const useNameStore = defineStore('name', () => {
     const likedNamesFromLocalStorage = localStorage.getItem('likedNames') ?? '[]';
     const dislikedNamesFromLocalStorage = localStorage.getItem('dislikedNames') ?? '[]';
 
-    const names = ref<string[]>(namesFromLocalStorage ? JSON.parse(namesFromLocalStorage) : girlNamesData.names);
+    // TODO - Add a way to switch between boy and girl names
+    const names = ref<string[]>(namesFromLocalStorage ? JSON.parse(namesFromLocalStorage) : boyNamesData.names);
     watch(names, createLocalStorageWatcher('names'));
 
     const likedNames = ref<string[]>(JSON.parse(likedNamesFromLocalStorage));
@@ -41,6 +43,12 @@ export const useNameStore = defineStore('name', () => {
         names.value = names.value.filter((name) => name !== randomName.value);
     }
 
+    function clearLocalStorage() {
+        localStorage.removeItem('names');
+        localStorage.removeItem('likedNames');
+        localStorage.removeItem('dislikedNames');
+    }
+
     return {
         names,
         randomName,
@@ -49,5 +57,6 @@ export const useNameStore = defineStore('name', () => {
         pickRandomName,
         appendInCollection,
         removeName,
+        clearLocalStorage,
     };
 });
