@@ -7,15 +7,11 @@ const nameStore = useNameStore();
 const showDislikedNames = ref(false);
 
 function handleLike() {
-    nameStore.removeName();
     nameStore.appendInCollection(true);
-    nameStore.randomName = nameStore.pickRandomName();
 }
 
 function handleDislike() {
-    nameStore.removeName();
     nameStore.appendInCollection(false);
-    nameStore.randomName = nameStore.pickRandomName();
 }
 
 function toggleDislikedNames() {
@@ -29,8 +25,17 @@ function handleReset() {
 </script>
 
 <template>
-    <div>
-        <h1>Fiú nevek</h1>
+    <div class="baby-names-view">
+        <div class="gender-toggle">
+            <span>Lány</span>
+            <label class="switch">
+                <input type="checkbox" :checked="nameStore.isBoyNames" @change="nameStore.toggleNameGender">
+                <span class="slider round"></span>
+            </label>
+            <span>Fiú</span>
+        </div>
+
+        <h1>{{ nameStore.isBoyNames ? 'Fiú nevek' : 'Lány nevek' }}</h1>
         <h3 class="current-name">Név: {{ nameStore.randomName }}</h3>
         <div class="button-container">
             <button class="like-button"
@@ -203,5 +208,64 @@ p {
     border: 1px solid red;
     padding: 1em;
     margin-top: 2em;
+}
+
+.gender-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin: 0 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #277802;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
 }
 </style>

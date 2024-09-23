@@ -2,51 +2,81 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import boyNamesData from '../assets/boy-names.json';
-//import girlNamesData from '../assets/girl-names.json';
+import girlNamesData from '../assets/girl-names.json';
 import { createLocalStorageWatcher } from '../utils';
 
 export const useNameStore = defineStore('name', () => {
-    const namesFromLocalStorage = localStorage.getItem('names');
+    const names = ref<string[]>([]);
+    const isBoyNames = ref(JSON.parse(localStorage.getItem('isBoyNames') ?? 'true'));
+    watch(isBoyNames, (value) => localStorage.setItem('isBoyNames', JSON.stringify(value)));
+
+    const boyNamesFromLocalStorage = localStorage.getItem('boyNames');
+    const girlNamesFromLocalStorage = localStorage.getItem('girlNames');
     const likedNamesFromLocalStorage = localStorage.getItem('likedNames') ?? '[]';
     const dislikedNamesFromLocalStorage = localStorage.getItem('dislikedNames') ?? '[]';
 
-    // TODO - Add a way to switch between boy and girl names
-    const names = ref<string[]>(namesFromLocalStorage ? JSON.parse(namesFromLocalStorage) : boyNamesData.names);
-    watch(names, createLocalStorageWatcher('names'));
-
     const likedNames = ref<string[]>(JSON.parse(likedNamesFromLocalStorage));
-    watch(likedNames, createLocalStorageWatcher('likedNames'));
-
     const dislikedNames = ref<string[]>(JSON.parse(dislikedNamesFromLocalStorage));
-    watch(dislikedNames, createLocalStorageWatcher('dislikedNames'));
+
+    const boyNames = ref<string[]>(boyNamesFromLocalStorage ? JSON.parse(boyNamesFromLocalStorage) : boyNamesData.names);
+    const girlNames = ref<string[]>(girlNamesFromLocalStorage ? JSON.parse(girlNamesFromLocalStorage) : girlNamesData.names);
 
     const randomName = ref(pickRandomName());
-    names.value = names.value.filter(
-        (name) => !likedNames.value.includes(name) || !dislikedNames.value.includes(name),
-    );
+
+    watch(boyNames, createLocalStorageWatcher('boyNames'));
+    watch(girlNames, createLocalStorageWatcher('girlNames'));
+    
+    function updateNames() {
+        names.value = isBoyNames.value ? boyNames.value : girlNames.value;
+        names.value = names.value.filter(
+            (name) => !likedNames.value.includes(name) && !dislikedNames.value.includes(name),
+        );
+        randomName.value = pickRandomName();
+    }
+
+    watch(isBoyNames, updateNames, { immediate: true });
 
     function pickRandomName() {
         if (names.value.length === 0) {
             return 'No more names left :(';
         }
-
-        return names.value[Math.floor(Math.random() * names.value.length)];
+    
+        const cryptoRandom = new Uint32Array(1);
+        window.crypto.getRandomValues(cryptoRandom);
+        const randomIndex = cryptoRandom[0] % names.value.length;
+    
+        return names.value[randomIndex];
     }
     
     function appendInCollection(liked: boolean) {
-        liked
-            ? likedNames.value.push(randomName.value) 
-            : dislikedNames.value.push(randomName.value);
+        if (randomName.value !== 'No more names left :(') {
+            liked
+                ? likedNames.value.push(randomName.value) 
+                : dislikedNames.value.push(randomName.value);
+            updateNames();
+        }
     }
     
     function removeName() {
-        names.value = names.value.filter((name) => name !== randomName.value);
+        if (isBoyNames.value) {
+            boyNames.value = boyNames.value.filter((name) => name !== randomName.value);
+        } else {
+            girlNames.value = girlNames.value.filter((name) => name !== randomName.value);
+        }
+        updateNames();
+    }
+
+    function toggleNameGender() {
+        isBoyNames.value = !isBoyNames.value;
+        updateNames();
     }
 
     function clearLocalStorage() {
-        localStorage.removeItem('names');
+        localStorage.removeItem('boyNames');
+        localStorage.removeItem('girlNames');
         localStorage.removeItem('likedNames');
         localStorage.removeItem('dislikedNames');
+        localStorage.removeItem('isBoyNames');
     }
 
     return {
@@ -54,9 +84,11 @@ export const useNameStore = defineStore('name', () => {
         randomName,
         likedNames,
         dislikedNames,
+        isBoyNames,
         pickRandomName,
         appendInCollection,
         removeName,
         clearLocalStorage,
+        toggleNameGender,
     };
 });
