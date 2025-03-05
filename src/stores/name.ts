@@ -50,6 +50,7 @@ export const useNameStore = defineStore('name', () => {
     
     function appendInCollection(liked: boolean) {
         if (randomName.value !== 'No more names left :(') {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
             liked
                 ? likedNames.value.push(randomName.value) 
                 : dislikedNames.value.push(randomName.value);

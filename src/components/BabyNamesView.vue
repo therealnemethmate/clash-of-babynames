@@ -29,19 +29,33 @@ function handleReset() {
         <div class="gender-toggle">
             <span>Lány</span>
             <label class="switch">
-                <input type="checkbox" :checked="nameStore.isBoyNames" @change="nameStore.toggleNameGender">
-                <span class="slider round"></span>
+                <input
+                    type="checkbox"
+                    :checked="nameStore.isBoyNames"
+                    @change="nameStore.toggleNameGender"
+                >
+                <span class="slider round" />
             </label>
             <span>Fiú</span>
         </div>
 
         <h1>{{ nameStore.isBoyNames ? 'Fiú nevek' : 'Lány nevek' }}</h1>
-        <h3 class="current-name">Név: {{ nameStore.randomName }}</h3>
+        <h3 class="current-name">
+            Név: {{ nameStore.randomName }}
+        </h3>
         <div class="button-container">
-            <button class="like-button"
-                    @click="handleLike">Like</button>
-            <button class="dislike-button"
-                    @click="handleDislike">Dislike</button>
+            <button
+                class="like-button"
+                @click="handleLike"
+            >
+                Like
+            </button>
+            <button
+                class="dislike-button"
+                @click="handleDislike"
+            >
+                Dislike
+            </button>
         </div>
     </div>
 
@@ -49,20 +63,42 @@ function handleReset() {
         <div class="names-list-container">
             <h2>Tetszik:</h2>
             <ul class="names-list">
-                <li class="names-item" v-for="name in nameStore.likedNames" :key="name">{{ name }}</li>
+                <li
+                    v-for="name in nameStore.likedNames"
+                    :key="name"
+                    class="names-item"
+                >
+                    {{ name }}
+                </li>
             </ul>
         </div>
 
         <div class="danger-zone">
             <h2>Danger zone</h2>
-            <button @click="handleReset">Alaphelyzetbe állítás</button>
+            <button @click="handleReset">
+                Alaphelyzetbe állítás
+            </button>
         </div>
 
         <div class="names-list-container">
             <h2>Nem tetszik: </h2>
-            <button class="show-hide-button" @click="toggleDislikedNames">{{ showDislikedNames ? 'Rejtsd el' : 'Mutatsd' }} ami NEM tetszik!</button>
-            <ul class="names-list" v-show="showDislikedNames">
-                <li class="names-item" v-for="name in nameStore.dislikedNames" :key="name">{{ name }}</li>
+            <button
+                class="show-hide-button"
+                @click="toggleDislikedNames"
+            >
+                {{ showDislikedNames ? 'Rejtsd el' : 'Mutatsd' }} ami NEM tetszik!
+            </button>
+            <ul
+                v-show="showDislikedNames"
+                class="names-list"
+            >
+                <li
+                    v-for="name in nameStore.dislikedNames"
+                    :key="name"
+                    class="names-item"
+                >
+                    {{ name }}
+                </li>
             </ul>
         </div>
     </div>

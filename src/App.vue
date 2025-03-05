@@ -3,7 +3,7 @@ import Names from './components/BabyNamesView.vue';
 </script>
 
 <template>
-  <Names msg="Vite + Vue" />
+    <Names msg="Vite + Vue" />
 </template>
 
 <style scoped>
