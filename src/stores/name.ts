@@ -25,6 +25,8 @@ export const useNameStore = defineStore('name', () => {
 
     watch(boyNames, createLocalStorageWatcher('boyNames'));
     watch(girlNames, createLocalStorageWatcher('girlNames'));
+    watch(likedNames, createLocalStorageWatcher('likedNames'));
+    watch(dislikedNames, createLocalStorageWatcher('dislikedNames'));
     
     function updateNames() {
         names.value = isBoyNames.value ? boyNames.value : girlNames.value;
