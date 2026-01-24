@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import TheTabBar from './components/TheTabBar.vue';
 import { RouterView } from 'vue-router';
+
+import TheTabBar from './components/TheTabBar.vue';
 </script>
 
 <template>
-  <div class="app-container">
-    <main class="main-content">
-      <RouterView />
-    </main>
-    <TheTabBar />
-  </div>
+    <div class="app-container">
+        <main class="main-content">
+            <RouterView />
+        </main>
+        <TheTabBar />
+    </div>
 </template>
 
 <style scoped>

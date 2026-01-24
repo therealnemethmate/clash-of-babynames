@@ -16,11 +16,50 @@ export interface BabyName {
 }
 
 export const HUNGARIAN_ALPHABET: string[] = [
-    'A', 'Á', 'B', 'C', 'Cs', 'D', 'Dz', 'Dzs', 'E', 'É',
-    'F', 'G', 'Gy', 'H', 'I', 'Í', 'J', 'K', 'L', 'Ly',
-    'M', 'N', 'Ny', 'O', 'Ó', 'Ö', 'Ő', 'P', 'Q', 'R',
-    'S', 'Sz', 'T', 'Ty', 'U', 'Ú', 'Ü', 'Ű', 'V', 'W',
-    'X', 'Y', 'Z', 'Zs',
+    'A',
+    'Á',
+    'B',
+    'C',
+    'Cs',
+    'D',
+    'Dz',
+    'Dzs',
+    'E',
+    'É',
+    'F',
+    'G',
+    'Gy',
+    'H',
+    'I',
+    'Í',
+    'J',
+    'K',
+    'L',
+    'Ly',
+    'M',
+    'N',
+    'Ny',
+    'O',
+    'Ó',
+    'Ö',
+    'Ő',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'Sz',
+    'T',
+    'Ty',
+    'U',
+    'Ú',
+    'Ü',
+    'Ű',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z',
+    'Zs',
 ];
 
 const STORAGE_KEYS = {
@@ -33,15 +72,15 @@ const STORAGE_KEYS = {
 export const useNameStore = defineStore('name', () => {
     // State
     const selectedGender = ref<Gender>(
-        (localStorage.getItem(STORAGE_KEYS.SELECTED_GENDER) as Gender) || 'boy'
+        (localStorage.getItem(STORAGE_KEYS.SELECTED_GENDER) as Gender) || 'boy',
     );
     const letterFilter = ref<string[]>(
         localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)
             ? JSON.parse(localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)!)
-            : []
+            : [],
     );
     const isDarkMode = ref<boolean>(
-        localStorage.getItem(STORAGE_KEYS.IS_DARK_MODE) === 'true'
+        localStorage.getItem(STORAGE_KEYS.IS_DARK_MODE) === 'true',
     );
     
     // Initialize names
@@ -49,24 +88,24 @@ export const useNameStore = defineStore('name', () => {
     let initialNames: BabyName[] = [];
 
     if (storedNames) {
-        initialNames = JSON.parse(storedNames).map((n: any) => ({
+        initialNames = JSON.parse(storedNames).map((n: { votedAt: string | number | Date; }) => ({
             ...n,
-            votedAt: n.votedAt ? new Date(n.votedAt) : null
+            votedAt: n.votedAt ? new Date(n.votedAt) : null,
         }));
     } else {
-        const boys = boyNamesData.names.map(name => ({
+        const boys = boyNamesData.names.map((name) => ({
             id: name,
             name,
             gender: 'boy' as Gender,
             vote: null,
-            votedAt: null
+            votedAt: null,
         }));
-        const girls = girlNamesData.names.map(name => ({
+        const girls = girlNamesData.names.map((name) => ({
             id: name,
             name,
             gender: 'girl' as Gender,
             vote: null,
-            votedAt: null
+            votedAt: null,
         }));
         initialNames = [...boys, ...girls];
         shuffleArray(initialNames);
@@ -131,10 +170,10 @@ export const useNameStore = defineStore('name', () => {
 
     // Computed
     const filteredNames = computed(() => {
-        return names.value.filter(name => 
-            name.gender === selectedGender.value &&
-            name.vote === null &&
-            nameMatchesFilter(name.name, letterFilter.value)
+        return names.value.filter((name) => 
+            name.gender === selectedGender.value
+            && name.vote === null
+            && nameMatchesFilter(name.name, letterFilter.value),
         );
     });
 
@@ -145,18 +184,18 @@ export const useNameStore = defineStore('name', () => {
     });
 
     const votedCount = computed(() => 
-        names.value.filter(n => 
-            n.vote !== null && 
-            n.gender === selectedGender.value &&
-            nameMatchesFilter(n.name, letterFilter.value)
-        ).length
+        names.value.filter((n) => 
+            n.vote !== null 
+            && n.gender === selectedGender.value
+            && nameMatchesFilter(n.name, letterFilter.value),
+        ).length,
     );
 
     const totalCount = computed(() => 
-        names.value.filter(n => 
-            n.gender === selectedGender.value &&
-            nameMatchesFilter(n.name, letterFilter.value)
-        ).length
+        names.value.filter((n) => 
+            n.gender === selectedGender.value
+            && nameMatchesFilter(n.name, letterFilter.value),
+        ).length,
     );
 
     const progress = computed(() => {
@@ -164,11 +203,11 @@ export const useNameStore = defineStore('name', () => {
     });
 
     const likedNames = computed(() => 
-        names.value.filter(n => n.vote === 'like').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime())
+        names.value.filter((n) => n.vote === 'like').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime()),
     );
 
     const dislikedNames = computed(() => 
-        names.value.filter(n => n.vote === 'dislike').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime())
+        names.value.filter((n) => n.vote === 'dislike').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime()),
     );
 
     // Actions
@@ -178,8 +217,8 @@ export const useNameStore = defineStore('name', () => {
 
     function toggleLetterFilter(letter: string) {
         if (letter === 'ALL') {
-             letterFilter.value = [...HUNGARIAN_ALPHABET];
-             return;
+            letterFilter.value = [...HUNGARIAN_ALPHABET];
+            return;
         }
         if (letter === 'NONE') {
             letterFilter.value = [];
@@ -195,7 +234,7 @@ export const useNameStore = defineStore('name', () => {
     }
 
     function voteName(id: string, vote: Vote) {
-        const name = names.value.find(n => n.id === id);
+        const name = names.value.find((n) => n.id === id);
         if (name) {
             name.vote = vote;
             name.votedAt = new Date();
@@ -206,7 +245,7 @@ export const useNameStore = defineStore('name', () => {
     function undoLastVote() {
         if (!lastVotedId.value) return;
         
-        const name = names.value.find(n => n.id === lastVotedId.value);
+        const name = names.value.find((n) => n.id === lastVotedId.value);
         if (name && name.gender === selectedGender.value) {
             name.vote = null;
             name.votedAt = null;
@@ -215,7 +254,7 @@ export const useNameStore = defineStore('name', () => {
     }
 
     function toggleVote(id: string) {
-        const name = names.value.find(n => n.id === id);
+        const name = names.value.find((n) => n.id === id);
         if (name && name.vote) {
             name.vote = name.vote === 'like' ? 'dislike' : 'like';
             name.votedAt = new Date();
@@ -223,7 +262,7 @@ export const useNameStore = defineStore('name', () => {
     }
 
     function resetAll() {
-        names.value.forEach(n => {
+        names.value.forEach((n) => {
             n.vote = null;
             n.votedAt = null;
         });
