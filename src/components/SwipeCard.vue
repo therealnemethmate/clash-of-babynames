@@ -132,7 +132,7 @@ function triggerSwipe(direction: 'left' | 'right') {
 
 <template>
   <div
-    class="card absolute w-full h-full bg-white rounded-3xl shadow-xl overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none"
+    class="card absolute w-full h-full bg-card rounded-3xl shadow-xl overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none"
     :style="cardStyle"
     @mousedown="onTouchStart"
     @mousemove="onTouchMove"
@@ -151,11 +151,11 @@ function triggerSwipe(direction: 'left' | 'right') {
         {{ name.gender === 'boy' ? '👤' : '👗' }}
       </div>
       
-      <h2 class="text-4xl font-bold mb-2 text-center text-black">
+      <h2 class="text-4xl font-bold mb-2 text-center text-text-primary">
         {{ name.name }}
       </h2>
       
-      <p class="text-lg text-gray-500 font-medium">
+      <p class="text-lg text-text-secondary font-medium">
         {{ name.gender === 'boy' ? 'Fiú' : 'Lány' }}
       </p>
       

@@ -29,17 +29,17 @@ const filterText = computed(() => {
 <template>
   <div class="flex flex-col h-full max-w-lg mx-auto w-full p-4">
     <!-- Gender Toggle -->
-    <div class="flex bg-gray-200 rounded-lg p-1 mb-4">
+    <div class="flex bg-gray-5 rounded-lg p-1 mb-4">
       <button
         class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
-        :class="store.selectedGender === 'boy' ? 'bg-white shadow text-blue-600' : 'text-gray-500'"
+        :class="store.selectedGender === 'boy' ? 'bg-card shadow text-blue-600' : 'text-text-secondary'"
         @click="store.setGender('boy')"
       >
         Fiú
       </button>
       <button
         class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
-        :class="store.selectedGender === 'girl' ? 'bg-white shadow text-pink-600' : 'text-gray-500'"
+        :class="store.selectedGender === 'girl' ? 'bg-card shadow text-pink-600' : 'text-text-secondary'"
         @click="store.setGender('girl')"
       >
         Lány
@@ -47,24 +47,24 @@ const filterText = computed(() => {
     </div>
 
     <!-- Filter Indicator -->
-    <div v-if="store.letterFilter.length > 0" class="flex items-center justify-between bg-orange-100 text-orange-800 px-3 py-2 rounded-lg mb-4 text-sm animate-fade-in">
+    <div v-if="store.letterFilter.length > 0" class="flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-3 py-2 rounded-lg mb-4 text-sm animate-fade-in">
       <div class="flex items-center">
         <span class="mr-2">🔽</span>
         <span class="font-medium">{{ filterText }}</span>
       </div>
-      <button @click="clearFilter" class="text-orange-800 hover:text-orange-900 font-bold px-2">✕</button>
+      <button @click="clearFilter" class="text-orange-800 dark:text-orange-200 hover:text-orange-900 font-bold px-2">✕</button>
     </div>
 
     <!-- Progress Bar -->
     <div class="mb-2">
-      <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div class="h-2 bg-gray-5 rounded-full overflow-hidden">
         <div 
           class="h-full transition-all duration-500 ease-out"
           :class="store.selectedGender === 'boy' ? 'bg-blue-500' : 'bg-pink-500'"
           :style="{ width: `${store.progress * 100}%` }"
         ></div>
       </div>
-      <div class="text-center text-xs text-gray-500 mt-1">
+      <div class="text-center text-xs text-text-secondary mt-1">
         {{ Math.round(store.progress * 100) }}% kész
       </div>
     </div>
@@ -72,17 +72,17 @@ const filterText = computed(() => {
     <!-- Stats Row -->
     <div class="flex justify-between items-center px-4 mb-6">
       <div class="text-center">
-        <div class="text-lg font-bold text-gray-900">{{ store.totalCount - store.votedCount }}</div>
-        <div class="text-xs text-gray-500 uppercase tracking-wide">Hátravan</div>
+        <div class="text-lg font-bold text-text-primary">{{ store.totalCount - store.votedCount }}</div>
+        <div class="text-xs text-text-secondary uppercase tracking-wide">Hátravan</div>
       </div>
       
       <div class="text-center">
-        <div class="text-lg font-bold text-gray-900">{{ store.votedCount }}</div>
-        <div class="text-xs text-gray-500 uppercase tracking-wide">Szavazva</div>
+        <div class="text-lg font-bold text-text-primary">{{ store.votedCount }}</div>
+        <div class="text-xs text-text-secondary uppercase tracking-wide">Szavazva</div>
       </div>
       
       <button 
-        class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center transition-opacity"
+        class="w-10 h-10 rounded-full bg-card shadow flex items-center justify-center transition-opacity text-text-primary"
         :class="{ 'opacity-50 cursor-not-allowed': !store.canUndo }"
         :disabled="!store.canUndo"
         @click="store.undoLastVote"
@@ -93,10 +93,10 @@ const filterText = computed(() => {
 
     <!-- Card Stack -->
     <div class="relative flex-1 w-full max-h-[400px] min-h-[320px]">
-      <div v-if="!currentCard" class="flex flex-col items-center justify-center h-full text-center p-6">
+      <div v-if="!currentCard" class="flex flex-col items-center justify-center h-full text-center p-6 text-text-primary">
         <div class="text-4xl mb-4">✓</div>
         <h3 class="text-xl font-bold mb-2">Nincs több név!</h3>
-        <p class="text-gray-500 mb-6">Az összes {{ store.selectedGender === 'boy' ? 'fiú' : 'lány' }} nevet megnézted.</p>
+        <p class="text-text-secondary mb-6">Az összes {{ store.selectedGender === 'boy' ? 'fiú' : 'lány' }} nevet megnézted.</p>
         <button 
           v-if="store.canUndo"
           @click="store.undoLastVote"

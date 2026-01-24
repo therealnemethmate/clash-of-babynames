@@ -1,6 +1,22 @@
 @import "tailwindcss";
 
 @theme {
+  --color-boy: var(--color-boy);
+  --color-girl: var(--color-girl);
+  --color-like: var(--color-like);
+  --color-dislike: var(--color-dislike);
+  --color-background: var(--color-background);
+  --color-card: var(--color-card);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-gray-5: var(--color-gray-5);
+  --color-gray-6: var(--color-gray-6);
+  --color-accent: var(--color-accent);
+  
+  --font-family-rounded: system-ui, -apple-system, 'SF Pro Rounded', sans-serif;
+}
+
+:root {
   --color-boy: #007AFF;
   --color-girl: #FF2D55;
   --color-like: #34C759;
@@ -12,8 +28,16 @@
   --color-gray-5: #E5E5EA;
   --color-gray-6: #F2F2F7;
   --color-accent: #007AFF;
-  
-  --font-family-rounded: system-ui, -apple-system, 'SF Pro Rounded', sans-serif;
+}
+
+.dark {
+  --color-background: #000000;
+  --color-card: #1C1C1E;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8E8E93;
+  --color-gray-5: #2C2C2E;
+  --color-gray-6: #1C1C1E;
+  /* Keep accent and other colors same for now, or adjust if needed */
 }
 
 body {

@@ -27,6 +27,7 @@ const STORAGE_KEYS = {
     SELECTED_GENDER: 'selectedGender',
     LETTER_FILTER: 'letterFilter',
     NAMES_DATA: 'namesData',
+    IS_DARK_MODE: 'isDarkMode',
 };
 
 export const useNameStore = defineStore('name', () => {
@@ -38,6 +39,9 @@ export const useNameStore = defineStore('name', () => {
         localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)
             ? JSON.parse(localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)!)
             : []
+    );
+    const isDarkMode = ref<boolean>(
+        localStorage.getItem(STORAGE_KEYS.IS_DARK_MODE) === 'true'
     );
     
     // Initialize names
@@ -88,6 +92,14 @@ export const useNameStore = defineStore('name', () => {
     watch(selectedGender, (val) => localStorage.setItem(STORAGE_KEYS.SELECTED_GENDER, val));
     watch(letterFilter, (val) => localStorage.setItem(STORAGE_KEYS.LETTER_FILTER, JSON.stringify(val)), { deep: true });
     watch(names, (val) => localStorage.setItem(STORAGE_KEYS.NAMES_DATA, JSON.stringify(val)), { deep: true });
+    watch(isDarkMode, (val) => {
+        localStorage.setItem(STORAGE_KEYS.IS_DARK_MODE, String(val));
+        if (val) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, { immediate: true });
 
     // Helpers
     function shuffleArray<T>(array: T[]): T[] {
@@ -98,19 +110,23 @@ export const useNameStore = defineStore('name', () => {
         return array;
     }
 
-    function nameMatchesFilter(name: string, selectedLetters: string[]): boolean {
-        if (selectedLetters.length === 0) return true;
-        
-        const upperName = name.toUpperCase();
-        // Sort by length descending to match digraphs first
-        const sortedLetters = [...selectedLetters].sort((a, b) => b.length - a.length);
-        
-        for (const letter of sortedLetters) {
-            if (upperName.startsWith(letter.toUpperCase())) {
-                return true;
+    // Sort alphabet by length descending to match longest digraphs first (e.g. Dzs before Dz before D)
+    const SORTED_ALPHABET_BY_LENGTH = [...HUNGARIAN_ALPHABET].sort((a, b) => b.length - a.length);
+
+    function getFirstLetter(name: string): string {
+        const upper = name.toUpperCase();
+        for (const letter of SORTED_ALPHABET_BY_LENGTH) {
+            if (upper.startsWith(letter.toUpperCase())) {
+                return letter;
             }
         }
-        return false;
+        return upper.charAt(0);
+    }
+
+    function nameMatchesFilter(name: string, selectedLetters: string[]): boolean {
+        if (selectedLetters.length === 0) return true;
+        const firstLetter = getFirstLetter(name);
+        return selectedLetters.includes(firstLetter);
     }
 
     // Computed
@@ -129,11 +145,18 @@ export const useNameStore = defineStore('name', () => {
     });
 
     const votedCount = computed(() => 
-        names.value.filter(n => n.vote !== null && n.gender === selectedGender.value).length
+        names.value.filter(n => 
+            n.vote !== null && 
+            n.gender === selectedGender.value &&
+            nameMatchesFilter(n.name, letterFilter.value)
+        ).length
     );
 
     const totalCount = computed(() => 
-        names.value.filter(n => n.gender === selectedGender.value).length
+        names.value.filter(n => 
+            n.gender === selectedGender.value &&
+            nameMatchesFilter(n.name, letterFilter.value)
+        ).length
     );
 
     const progress = computed(() => {
@@ -207,11 +230,16 @@ export const useNameStore = defineStore('name', () => {
         lastVotedId.value = null;
     }
 
+    function toggleDarkMode() {
+        isDarkMode.value = !isDarkMode.value;
+    }
+
     return {
         // State
         selectedGender,
         letterFilter,
         names,
+        isDarkMode,
         
         // Computed
         filteredNames,
@@ -229,6 +257,7 @@ export const useNameStore = defineStore('name', () => {
         voteName,
         undoLastVote,
         toggleVote,
-        resetAll
+        resetAll,
+        toggleDarkMode,
     };
 });

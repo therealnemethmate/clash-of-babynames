@@ -7,13 +7,13 @@ const tabs = [
 </script>
 
 <template>
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe">
+  <nav class="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-5 pb-safe">
     <div class="flex justify-around items-center h-16">
       <router-link
         v-for="tab in tabs"
         :key="tab.name"
         :to="{ name: tab.name }"
-        class="flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-accent transition-colors"
+        class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-accent transition-colors"
         active-class="text-accent"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
