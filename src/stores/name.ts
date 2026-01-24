@@ -1,97 +1,234 @@
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import boyNamesData from '../assets/boy-names.json';
 import girlNamesData from '../assets/girl-names.json';
-import { createLocalStorageWatcher } from '../utils';
+
+export type Gender = 'boy' | 'girl';
+export type Vote = 'like' | 'dislike';
+
+export interface BabyName {
+    id: string;
+    name: string;
+    gender: Gender;
+    vote: Vote | null;
+    votedAt: Date | null;
+}
+
+export const HUNGARIAN_ALPHABET: string[] = [
+    'A', 'Á', 'B', 'C', 'Cs', 'D', 'Dz', 'Dzs', 'E', 'É',
+    'F', 'G', 'Gy', 'H', 'I', 'Í', 'J', 'K', 'L', 'Ly',
+    'M', 'N', 'Ny', 'O', 'Ó', 'Ö', 'Ő', 'P', 'Q', 'R',
+    'S', 'Sz', 'T', 'Ty', 'U', 'Ú', 'Ü', 'Ű', 'V', 'W',
+    'X', 'Y', 'Z', 'Zs',
+];
+
+const STORAGE_KEYS = {
+    SELECTED_GENDER: 'selectedGender',
+    LETTER_FILTER: 'letterFilter',
+    NAMES_DATA: 'namesData',
+};
 
 export const useNameStore = defineStore('name', () => {
-    const names = ref<string[]>([]);
-    const isBoyNames = ref(JSON.parse(localStorage.getItem('isBoyNames') ?? 'true'));
-    watch(isBoyNames, (value) => localStorage.setItem('isBoyNames', JSON.stringify(value)));
-
-    const boyNamesFromLocalStorage = localStorage.getItem('boyNames');
-    const girlNamesFromLocalStorage = localStorage.getItem('girlNames');
-    const likedNamesFromLocalStorage = localStorage.getItem('likedNames') ?? '[]';
-    const dislikedNamesFromLocalStorage = localStorage.getItem('dislikedNames') ?? '[]';
-
-    const likedNames = ref<string[]>(JSON.parse(likedNamesFromLocalStorage));
-    const dislikedNames = ref<string[]>(JSON.parse(dislikedNamesFromLocalStorage));
-
-    const boyNames = ref<string[]>(boyNamesFromLocalStorage ? JSON.parse(boyNamesFromLocalStorage) : boyNamesData.names);
-    const girlNames = ref<string[]>(girlNamesFromLocalStorage ? JSON.parse(girlNamesFromLocalStorage) : girlNamesData.names);
-
-    const randomName = ref(pickRandomName());
-
-    watch(boyNames, createLocalStorageWatcher('boyNames'));
-    watch(girlNames, createLocalStorageWatcher('girlNames'));
-    watch(likedNames, createLocalStorageWatcher('likedNames'));
-    watch(dislikedNames, createLocalStorageWatcher('dislikedNames'));
+    // State
+    const selectedGender = ref<Gender>(
+        (localStorage.getItem(STORAGE_KEYS.SELECTED_GENDER) as Gender) || 'boy'
+    );
+    const letterFilter = ref<string[]>(
+        localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)
+            ? JSON.parse(localStorage.getItem(STORAGE_KEYS.LETTER_FILTER)!)
+            : []
+    );
     
-    function updateNames() {
-        names.value = isBoyNames.value ? boyNames.value : girlNames.value;
-        names.value = names.value.filter(
-            (name) => !likedNames.value.includes(name) && !dislikedNames.value.includes(name),
+    // Initialize names
+    const storedNames = localStorage.getItem(STORAGE_KEYS.NAMES_DATA);
+    let initialNames: BabyName[] = [];
+
+    if (storedNames) {
+        initialNames = JSON.parse(storedNames).map((n: any) => ({
+            ...n,
+            votedAt: n.votedAt ? new Date(n.votedAt) : null
+        }));
+    } else {
+        const boys = boyNamesData.names.map(name => ({
+            id: name,
+            name,
+            gender: 'boy' as Gender,
+            vote: null,
+            votedAt: null
+        }));
+        const girls = girlNamesData.names.map(name => ({
+            id: name,
+            name,
+            gender: 'girl' as Gender,
+            vote: null,
+            votedAt: null
+        }));
+        initialNames = [...boys, ...girls];
+        shuffleArray(initialNames);
+    }
+
+    const names = ref<BabyName[]>(initialNames);
+    
+    // If we loaded from storage but it seems sorted (or we just want to ensure randomness on reload),
+    // we could shuffle. However, to preserve the "deck" order across reloads, we might not want to.
+    // But since the previous implementation relied on computed shuffle, the underlying storage might be alphabetical.
+    // Let's shuffle if it's a fresh load OR if we want to ensure randomness. 
+    // Actually, shuffling on every app load is a good "feature" - you get a fresh mix of the remaining names.
+    // As long as we don't shuffle *during* the session (on vote), we are good.
+    if (storedNames) {
+        // Optional: Reshuffle on reload to give a fresh feeling? 
+        // Or keep it stable? The user complained about stability during swipe.
+        // Shuffling here (once per session) is stable during swipe.
+        shuffleArray(names.value);
+    }
+    const lastVotedId = ref<string | null>(null); // For undo functionality
+
+    // Persistence
+    watch(selectedGender, (val) => localStorage.setItem(STORAGE_KEYS.SELECTED_GENDER, val));
+    watch(letterFilter, (val) => localStorage.setItem(STORAGE_KEYS.LETTER_FILTER, JSON.stringify(val)), { deep: true });
+    watch(names, (val) => localStorage.setItem(STORAGE_KEYS.NAMES_DATA, JSON.stringify(val)), { deep: true });
+
+    // Helpers
+    function shuffleArray<T>(array: T[]): T[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function nameMatchesFilter(name: string, selectedLetters: string[]): boolean {
+        if (selectedLetters.length === 0) return true;
+        
+        const upperName = name.toUpperCase();
+        // Sort by length descending to match digraphs first
+        const sortedLetters = [...selectedLetters].sort((a, b) => b.length - a.length);
+        
+        for (const letter of sortedLetters) {
+            if (upperName.startsWith(letter.toUpperCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Computed
+    const filteredNames = computed(() => {
+        return names.value.filter(name => 
+            name.gender === selectedGender.value &&
+            name.vote === null &&
+            nameMatchesFilter(name.name, letterFilter.value)
         );
-        randomName.value = pickRandomName();
+    });
+
+    // We need a stable shuffled list for the current session/filter
+    // Since we shuffle 'names' on init, 'filteredNames' is already in a random, stable order.
+    const shuffledNames = computed(() => {
+        return filteredNames.value;
+    });
+
+    const votedCount = computed(() => 
+        names.value.filter(n => n.vote !== null && n.gender === selectedGender.value).length
+    );
+
+    const totalCount = computed(() => 
+        names.value.filter(n => n.gender === selectedGender.value).length
+    );
+
+    const progress = computed(() => {
+        return totalCount.value > 0 ? votedCount.value / totalCount.value : 0;
+    });
+
+    const likedNames = computed(() => 
+        names.value.filter(n => n.vote === 'like').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime())
+    );
+
+    const dislikedNames = computed(() => 
+        names.value.filter(n => n.vote === 'dislike').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime())
+    );
+
+    // Actions
+    function setGender(gender: Gender) {
+        selectedGender.value = gender;
     }
 
-    watch(isBoyNames, updateNames, { immediate: true });
+    function toggleLetterFilter(letter: string) {
+        if (letter === 'ALL') {
+             letterFilter.value = [...HUNGARIAN_ALPHABET];
+             return;
+        }
+        if (letter === 'NONE') {
+            letterFilter.value = [];
+            return;
+        }
 
-    function pickRandomName() {
-        if (names.value.length === 0) {
-            return 'No more names left :(';
-        }
-    
-        const cryptoRandom = new Uint32Array(1);
-        window.crypto.getRandomValues(cryptoRandom);
-        const randomIndex = cryptoRandom[0] % names.value.length;
-    
-        return names.value[randomIndex];
-    }
-    
-    function appendInCollection(liked: boolean) {
-        if (randomName.value !== 'No more names left :(') {
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            liked
-                ? likedNames.value.push(randomName.value) 
-                : dislikedNames.value.push(randomName.value);
-            updateNames();
-        }
-    }
-    
-    function removeName() {
-        if (isBoyNames.value) {
-            boyNames.value = boyNames.value.filter((name) => name !== randomName.value);
+        const index = letterFilter.value.indexOf(letter);
+        if (index === -1) {
+            letterFilter.value.push(letter);
         } else {
-            girlNames.value = girlNames.value.filter((name) => name !== randomName.value);
+            letterFilter.value.splice(index, 1);
         }
-        updateNames();
     }
 
-    function toggleNameGender() {
-        isBoyNames.value = !isBoyNames.value;
-        updateNames();
+    function voteName(id: string, vote: Vote) {
+        const name = names.value.find(n => n.id === id);
+        if (name) {
+            name.vote = vote;
+            name.votedAt = new Date();
+            lastVotedId.value = id;
+        }
     }
 
-    function clearLocalStorage() {
-        localStorage.removeItem('boyNames');
-        localStorage.removeItem('girlNames');
-        localStorage.removeItem('likedNames');
-        localStorage.removeItem('dislikedNames');
-        localStorage.removeItem('isBoyNames');
+    function undoLastVote() {
+        if (!lastVotedId.value) return;
+        
+        const name = names.value.find(n => n.id === lastVotedId.value);
+        if (name && name.gender === selectedGender.value) {
+            name.vote = null;
+            name.votedAt = null;
+            lastVotedId.value = null;
+        }
+    }
+
+    function toggleVote(id: string) {
+        const name = names.value.find(n => n.id === id);
+        if (name && name.vote) {
+            name.vote = name.vote === 'like' ? 'dislike' : 'like';
+            name.votedAt = new Date();
+        }
+    }
+
+    function resetAll() {
+        names.value.forEach(n => {
+            n.vote = null;
+            n.votedAt = null;
+        });
+        lastVotedId.value = null;
     }
 
     return {
+        // State
+        selectedGender,
+        letterFilter,
         names,
-        randomName,
+        
+        // Computed
+        filteredNames,
+        shuffledNames,
+        votedCount,
+        totalCount,
+        progress,
         likedNames,
         dislikedNames,
-        isBoyNames,
-        pickRandomName,
-        appendInCollection,
-        removeName,
-        clearLocalStorage,
-        toggleNameGender,
+        canUndo: computed(() => !!lastVotedId.value),
+
+        // Actions
+        setGender,
+        toggleLetterFilter,
+        voteName,
+        undoLastVote,
+        toggleVote,
+        resetAll
     };
 });

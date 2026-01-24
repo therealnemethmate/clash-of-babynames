@@ -1,22 +1,36 @@
 <script setup lang="ts">
-import Names from './components/BabyNamesView.vue';
+import TheTabBar from './components/TheTabBar.vue';
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
-    <Names msg="Vite + Vue" />
+  <div class="app-container">
+    <main class="main-content">
+      <RouterView />
+    </main>
+    <TheTabBar />
+  </div>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--color-background);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 80px; /* Space for tab bar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.main-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 </style>
