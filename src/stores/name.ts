@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 
 import boyNamesData from '../assets/boy-names.json';
 import girlNamesData from '../assets/girl-names.json';
+import namesMetadata from '../assets/names-metadata.json';
 
 export type Gender = 'boy' | 'girl';
 export type Vote = 'like' | 'dislike';
@@ -13,6 +14,8 @@ export interface BabyName {
     gender: Gender;
     vote: Vote | null;
     votedAt: Date | null;
+    meaning?: string;
+    nameDays?: string;
 }
 
 export const HUNGARIAN_ALPHABET: string[] = [
@@ -87,10 +90,19 @@ export const useNameStore = defineStore('name', () => {
     const storedNames = localStorage.getItem(STORAGE_KEYS.NAMES_DATA);
     let initialNames: BabyName[] = [];
 
+    // Helper to get metadata
+    const getMetadata = (name: string) => {
+        const meta = (namesMetadata as Record<string, { meaning: string; nameDays: string }>)[name];
+        // console.log(`Metadata for ${name}:`, meta);
+        return meta ? { meaning: meta.meaning, nameDays: meta.nameDays } : {};
+    };
+
     if (storedNames) {
-        initialNames = JSON.parse(storedNames).map((n: { votedAt: string | number | Date; }) => ({
+        initialNames = JSON.parse(storedNames).map((n: { votedAt: string | number | Date; name: string; }) => ({
             ...n,
             votedAt: n.votedAt ? new Date(n.votedAt) : null,
+            // Ensure metadata is populated even for stored names (in case of update)
+            ...getMetadata(n.name),
         }));
     } else {
         const boys = boyNamesData.names.map((name) => ({
@@ -99,6 +111,7 @@ export const useNameStore = defineStore('name', () => {
             gender: 'boy' as Gender,
             vote: null,
             votedAt: null,
+            ...getMetadata(name),
         }));
         const girls = girlNamesData.names.map((name) => ({
             id: name,
@@ -106,6 +119,7 @@ export const useNameStore = defineStore('name', () => {
             gender: 'girl' as Gender,
             vote: null,
             votedAt: null,
+            ...getMetadata(name),
         }));
         initialNames = [...boys, ...girls];
         shuffleArray(initialNames);

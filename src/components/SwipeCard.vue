@@ -14,6 +14,7 @@ props;
 // eslint-disable-next-line func-call-spacing
 const emit = defineEmits<{
   (e: 'swipe', direction: 'left' | 'right'): void;
+  (e: 'show-details'): void;
 }>();
 
 // Touch/Drag logic
@@ -160,9 +161,34 @@ function triggerSwipe(direction: 'left' | 'right') {
                 {{ name.name }}
             </h2>
       
-            <p class="text-lg text-text-secondary font-medium">
+            <p class="text-lg text-text-secondary font-medium mb-6">
                 {{ name.gender === 'boy' ? 'Fiú' : 'Lány' }}
             </p>
+
+            <!-- Metadata -->
+            <div v-if="name.meaning || name.nameDays" class="text-center px-6 max-w-sm w-full">
+                <div v-if="name.nameDays" class="mb-3">
+                    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Névnap(ok)</span>
+                    <p class="text-sm text-text-primary line-clamp-1">{{ name.nameDays }}</p>
+                </div>
+        
+                <div v-if="name.meaning" class="mb-4">
+                    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Jelentése</span>
+                    <p class="text-sm text-text-primary italic line-clamp-3">"{{ name.meaning }}"</p>
+                </div>
+
+                <button 
+                    @click.stop="emit('show-details')"
+                    @mousedown.stop
+                    @touchstart.stop
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-5 dark:bg-gray-800 text-text-secondary hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Részletek
+                </button>
+            </div>
       
             <!-- Swipe Hints -->
             <div 

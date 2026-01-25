@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
-import SwipeCard from '../components/SwipeCard.vue';
+import { computed, ref } from 'vue';
 import { useNameStore } from '../stores/name';
+import SwipeCard from '../components/SwipeCard.vue';
+import NameDetailsModal from '../components/NameDetailsModal.vue';
 
 const store = useNameStore();
 
 const currentCard = computed(() => store.shuffledNames[0]);
 const nextCard = computed(() => store.shuffledNames[1]);
 
+const showDetails = ref(false);
+
 function handleSwipe(direction: 'left' | 'right') {
+
     if (!currentCard.value) return;
     store.voteName(currentCard.value.id, direction === 'right' ? 'like' : 'dislike');
 }
@@ -152,10 +155,19 @@ const filterText = computed(() => {
                         :name="currentCard" 
                         :index="0"
                         @swipe="handleSwipe"
+                        @show-details="showDetails = true"
                     />
                 </div>
             </template>
         </div>
+
+        <!-- Details Modal -->
+        <NameDetailsModal 
+            v-if="currentCard"
+            :name="currentCard"
+            :is-open="showDetails"
+            @close="showDetails = false"
+        />
     </div>
 </template>
 
