@@ -153,28 +153,28 @@ function triggerSwipe(direction: 'left' | 'right') {
 
         <!-- Content -->
         <div class="flex flex-col items-center justify-center h-full relative z-20">
-            <div class="text-6xl mb-6">
+            <div class="text-5xl sm:text-6xl mb-4 sm:mb-6">
                 {{ name.gender === 'boy' ? '👤' : '👗' }}
             </div>
       
-            <h2 class="text-4xl font-bold mb-2 text-center text-text-primary">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2 text-center text-text-primary">
                 {{ name.name }}
             </h2>
       
-            <p class="text-lg text-text-secondary font-medium mb-6">
+            <p class="text-base sm:text-lg text-text-secondary font-medium mb-4 sm:mb-6">
                 {{ name.gender === 'boy' ? 'Fiú' : 'Lány' }}
             </p>
 
             <!-- Metadata -->
-            <div v-if="name.meaning || name.nameDays" class="text-center px-6 max-w-sm w-full">
-                <div v-if="name.nameDays" class="mb-3">
+            <div v-if="name.meaning || name.nameDays" class="text-center px-4 sm:px-6 max-w-sm w-full">
+                <div v-if="name.nameDays" class="mb-2 sm:mb-3">
                     <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Névnap(ok)</span>
                     <p class="text-sm text-text-primary line-clamp-1">{{ name.nameDays }}</p>
                 </div>
         
-                <div v-if="name.meaning" class="mb-4">
+                <div v-if="name.meaning" class="mb-3 sm:mb-4">
                     <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Jelentése</span>
-                    <p class="text-sm text-text-primary italic line-clamp-3">"{{ name.meaning }}"</p>
+                    <p class="text-sm text-text-primary italic line-clamp-2 sm:line-clamp-3">"{{ name.meaning }}"</p>
                 </div>
 
                 <button 

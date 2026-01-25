@@ -31,9 +31,9 @@ const filterText = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-4">
+    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-2 sm:p-4">
         <!-- Gender Toggle -->
-        <div class="flex bg-gray-5 rounded-lg p-1 mb-4">
+        <div class="flex bg-gray-5 rounded-lg p-1 mb-2">
             <button
                 class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
                 :class="store.selectedGender === 'boy' ? 'bg-card shadow text-blue-600' : 'text-text-secondary'"
@@ -53,7 +53,7 @@ const filterText = computed(() => {
         <!-- Filter Indicator -->
         <div
             v-if="store.letterFilter.length > 0"
-            class="flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-3 py-2 rounded-lg mb-4 text-sm animate-fade-in"
+            class="flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-3 py-2 rounded-lg mb-2 text-sm animate-fade-in"
         >
             <div class="flex items-center">
                 <span class="mr-2">🔽</span>
@@ -82,7 +82,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Stats Row -->
-        <div class="flex justify-between items-center px-4 mb-6">
+        <div class="flex justify-between items-center px-4 mb-4">
             <div class="text-center">
                 <div class="text-lg font-bold text-text-primary">
                     {{ store.totalCount - store.votedCount }}
@@ -112,7 +112,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Card Stack -->
-        <div class="relative flex-1 w-full max-h-[400px] min-h-[320px]">
+        <div class="relative flex-1 w-full max-h-[400px] min-h-[280px]">
             <div
                 v-if="!currentCard"
                 class="flex flex-col items-center justify-center h-full text-center p-6 text-text-primary"

@@ -26,13 +26,13 @@ const emit = defineEmits<{
       aria-modal="true"
     >
       <!-- Header -->
-      <div class="p-6 pb-2 flex items-start justify-between">
+      <div class="p-4 sm:p-6 pb-2 flex items-start justify-between">
         <div>
-          <div class="text-5xl mb-2">
+          <div class="text-4xl sm:text-5xl mb-2">
             {{ name.gender === 'boy' ? '👤' : '👗' }}
           </div>
-          <h2 class="text-3xl font-bold text-text-primary">{{ name.name }}</h2>
-          <p class="text-lg text-text-secondary font-medium">
+          <h2 class="text-2xl sm:text-3xl font-bold text-text-primary">{{ name.name }}</h2>
+          <p class="text-base sm:text-lg text-text-secondary font-medium">
             {{ name.gender === 'boy' ? 'Fiú' : 'Lány' }}
           </p>
         </div>
@@ -47,9 +47,9 @@ const emit = defineEmits<{
       </div>
 
       <!-- Scrollable Body -->
-      <div class="p-6 pt-2 overflow-y-auto custom-scrollbar">
+      <div class="p-4 sm:p-6 pt-2 overflow-y-auto custom-scrollbar">
         <!-- Name Days -->
-        <div v-if="name.nameDays" class="mb-6">
+        <div v-if="name.nameDays" class="mb-4 sm:mb-6">
           <h3 class="text-sm font-bold text-text-secondary uppercase tracking-wider mb-2">Névnap(ok)</h3>
           <p class="text-text-primary leading-relaxed">{{ name.nameDays }}</p>
         </div>
@@ -57,7 +57,7 @@ const emit = defineEmits<{
         <!-- Meaning -->
         <div v-if="name.meaning">
           <h3 class="text-sm font-bold text-text-secondary uppercase tracking-wider mb-2">Jelentése</h3>
-          <p class="text-text-primary leading-relaxed text-lg italic">"{{ name.meaning }}"</p>
+          <p class="text-text-primary leading-relaxed text-base sm:text-lg italic">"{{ name.meaning }}"</p>
         </div>
       </div>
 
