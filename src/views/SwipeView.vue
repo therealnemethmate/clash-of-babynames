@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useNameStore } from '../stores/name';
-import SwipeCard from '../components/SwipeCard.vue';
+
 import NameDetailsModal from '../components/NameDetailsModal.vue';
+import SwipeCard from '../components/SwipeCard.vue';
+import { useNameStore } from '../stores/name';
 
 const store = useNameStore();
 
@@ -12,7 +13,6 @@ const nextCard = computed(() => store.shuffledNames[1]);
 const showDetails = ref(false);
 
 function handleSwipe(direction: 'left' | 'right') {
-
     if (!currentCard.value) return;
     store.voteName(currentCard.value.id, direction === 'right' ? 'like' : 'dislike');
 }
@@ -70,7 +70,7 @@ const filterText = computed(() => {
         <!-- Progress Bar -->
         <div class="mb-2">
             <div class="h-2 bg-gray-5 rounded-full overflow-hidden">
-                <div 
+                <div
                     class="h-full transition-all duration-500 ease-out"
                     :class="store.selectedGender === 'boy' ? 'bg-blue-500' : 'bg-pink-500'"
                     :style="{ width: `${store.progress * 100}%` }"
@@ -91,7 +91,7 @@ const filterText = computed(() => {
                     Hátravan
                 </div>
             </div>
-      
+
             <div class="text-center">
                 <div class="text-lg font-bold text-text-primary">
                     {{ store.votedCount }}
@@ -100,8 +100,8 @@ const filterText = computed(() => {
                     Szavazva
                 </div>
             </div>
-      
-            <button 
+
+            <button
                 class="w-10 h-10 rounded-full bg-card shadow flex items-center justify-center transition-opacity text-text-primary"
                 :class="{ 'opacity-50 cursor-not-allowed': !store.canUndo }"
                 :disabled="!store.canUndo"
@@ -126,7 +126,7 @@ const filterText = computed(() => {
                 <p class="text-text-secondary mb-6">
                     Az összes {{ store.selectedGender === 'boy' ? 'fiú' : 'lány' }} nevet megnézted.
                 </p>
-                <button 
+                <button
                     v-if="store.canUndo"
                     class="text-blue-600 font-medium"
                     @click="store.undoLastVote"
@@ -137,12 +137,12 @@ const filterText = computed(() => {
 
             <template v-else>
                 <!-- Next Card (Background) -->
-                <div 
+                <div
                     v-if="nextCard"
                     class="absolute inset-0 transform scale-95 translate-y-2 opacity-60 z-0"
                 >
-                    <SwipeCard 
-                        :name="nextCard" 
+                    <SwipeCard
+                        :name="nextCard"
                         :index="1"
                         class="pointer-events-none"
                     />
@@ -150,9 +150,9 @@ const filterText = computed(() => {
 
                 <!-- Current Card (Foreground) -->
                 <div class="absolute inset-0 z-10">
-                    <SwipeCard 
+                    <SwipeCard
                         :key="currentCard.id"
-                        :name="currentCard" 
+                        :name="currentCard"
                         :index="0"
                         @swipe="handleSwipe"
                         @show-details="showDetails = true"
@@ -162,7 +162,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Details Modal -->
-        <NameDetailsModal 
+        <NameDetailsModal
             v-if="currentCard"
             :name="currentCard"
             :is-open="showDetails"

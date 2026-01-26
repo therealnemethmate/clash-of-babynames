@@ -43,10 +43,10 @@ const cardStyle = computed(() => {
     }
 
     if (!isDragging.value) return {};
-  
+
     const xDiff = currentX.value - startX.value;
     const rotation = xDiff / 25;
-  
+
     return {
         transform: `translateX(${xDiff}px) rotate(${rotation}deg)`,
         transition: 'none',
@@ -55,10 +55,10 @@ const cardStyle = computed(() => {
 
 const overlayStyle = computed(() => {
     if (!isDragging.value) return { opacity: 0 };
-  
+
     const xDiff = currentX.value - startX.value;
     const opacity = Math.min(Math.abs(xDiff) / (SWIPE_THRESHOLD * 2), 0.6);
-  
+
     if (xDiff > 0) {
         return { backgroundColor: 'var(--color-like)', opacity };
     } else {
@@ -87,12 +87,12 @@ function onTouchStart(e: TouchEvent | MouseEvent) {
 
 function onTouchMove(e: TouchEvent | MouseEvent) {
     if (!isDragging.value) return;
-  
+
     // Prevent scrolling while dragging
     if (e.cancelable) {
         e.preventDefault();
     }
-  
+
     let clientX, clientY;
     if ('touches' in e) {
         clientX = e.touches[0].clientX;
@@ -101,7 +101,7 @@ function onTouchMove(e: TouchEvent | MouseEvent) {
         clientX = e.clientX;
         clientY = e.clientY;
     }
-  
+
     currentX.value = clientX;
     currentY.value = clientY;
 }
@@ -109,9 +109,9 @@ function onTouchMove(e: TouchEvent | MouseEvent) {
 function onTouchEnd() {
     if (!isDragging.value) return;
     isDragging.value = false;
-  
+
     const xDiff = currentX.value - startX.value;
-  
+
     if (xDiff > SWIPE_THRESHOLD) {
         triggerSwipe('right');
     } else if (xDiff < -SWIPE_THRESHOLD) {
@@ -122,7 +122,7 @@ function onTouchEnd() {
 function triggerSwipe(direction: 'left' | 'right') {
     isSwipingAway.value = true;
     swipeDirection.value = direction;
-  
+
     // Wait for animation to finish before emitting
     setTimeout(() => {
         emit('swipe', direction);
@@ -156,49 +156,73 @@ function triggerSwipe(direction: 'left' | 'right') {
             <div class="text-5xl sm:text-6xl mb-4 sm:mb-6">
                 {{ name.gender === 'boy' ? '👤' : '👗' }}
             </div>
-      
+
             <h2 class="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2 text-center text-text-primary">
                 {{ name.name }}
             </h2>
-      
+
             <p class="text-base sm:text-lg text-text-secondary font-medium mb-4 sm:mb-6">
                 {{ name.gender === 'boy' ? 'Fiú' : 'Lány' }}
             </p>
 
             <!-- Metadata -->
-            <div v-if="name.meaning || name.nameDays" class="text-center px-4 sm:px-6 max-w-sm w-full">
-                <div v-if="name.nameDays" class="mb-2 sm:mb-3">
+            <div
+                v-if="name.meaning || name.nameDays"
+                class="text-center px-4 sm:px-6 max-w-sm w-full"
+            >
+                <div
+                    v-if="name.nameDays"
+                    class="mb-2 sm:mb-3"
+                >
                     <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Névnap(ok)</span>
-                    <p class="text-sm text-text-primary line-clamp-1">{{ name.nameDays }}</p>
-                </div>
-        
-                <div v-if="name.meaning" class="mb-3 sm:mb-4">
-                    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Jelentése</span>
-                    <p class="text-sm text-text-primary italic line-clamp-2 sm:line-clamp-3">"{{ name.meaning }}"</p>
+                    <p class="text-sm text-text-primary line-clamp-1">
+                        {{ name.nameDays }}
+                    </p>
                 </div>
 
-                <button 
+                <div
+                    v-if="name.meaning"
+                    class="mb-3 sm:mb-4"
+                >
+                    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider block mb-1">Jelentése</span>
+                    <p class="text-sm text-text-primary italic line-clamp-2 sm:line-clamp-3">
+                        "{{ name.meaning }}"
+                    </p>
+                </div>
+
+                <button
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-5 dark:bg-gray-800 text-text-secondary hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
                     @click.stop="emit('show-details')"
                     @mousedown.stop
                     @touchstart.stop
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-5 dark:bg-gray-800 text-text-secondary hover:text-accent hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                     </svg>
                     Részletek
                 </button>
             </div>
-      
+
             <!-- Swipe Hints -->
-            <div 
+            <div
                 class="absolute left-6 top-6 border-4 border-red-500 rounded-lg px-4 py-2 transform -rotate-12 opacity-0 transition-opacity"
                 :style="{ opacity: (currentX - startX) < 0 ? hintOpacity : 0 }"
             >
                 <span class="text-red-500 font-bold text-2xl uppercase">Nem tetszik</span>
             </div>
-      
-            <div 
+
+            <div
                 class="absolute right-6 top-6 border-4 border-green-500 rounded-lg px-4 py-2 transform rotate-12 opacity-0 transition-opacity"
                 :style="{ opacity: (currentX - startX) > 0 ? hintOpacity : 0 }"
             >
