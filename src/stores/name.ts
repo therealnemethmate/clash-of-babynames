@@ -8,12 +8,16 @@ import namesMetadata from '../assets/names-metadata.json';
 export type Gender = 'boy' | 'girl';
 export type Vote = 'like' | 'dislike';
 
+export type Player = 1 | 2;
+
 export interface BabyName {
     id: string;
     name: string;
     gender: Gender;
     vote: Vote | null;
     votedAt: Date | null;
+    vote2: Vote | null;
+    votedAt2: Date | null;
     meaning?: string;
     nameDays?: string;
 }
@@ -70,6 +74,8 @@ const STORAGE_KEYS = {
     LETTER_FILTER: 'letterFilter',
     NAMES_DATA: 'namesData',
     IS_DARK_MODE: 'isDarkMode',
+    COUPLE_MODE: 'coupleMode',
+    ACTIVE_PLAYER: 'activePlayer',
 };
 
 export const useNameStore = defineStore('name', () => {
@@ -85,7 +91,13 @@ export const useNameStore = defineStore('name', () => {
     const isDarkMode = ref<boolean>(
         localStorage.getItem(STORAGE_KEYS.IS_DARK_MODE) === 'true',
     );
-    
+    const coupleMode = ref<boolean>(
+        localStorage.getItem(STORAGE_KEYS.COUPLE_MODE) === 'true',
+    );
+    const activePlayer = ref<Player>(
+        (Number(localStorage.getItem(STORAGE_KEYS.ACTIVE_PLAYER)) || 1) as Player,
+    );
+
     // Initialize names
     const storedNames = localStorage.getItem(STORAGE_KEYS.NAMES_DATA);
     let initialNames: BabyName[] = [];
@@ -98,9 +110,11 @@ export const useNameStore = defineStore('name', () => {
     };
 
     if (storedNames) {
-        initialNames = JSON.parse(storedNames).map((n: { votedAt: string | number | Date; name: string; }) => ({
+        initialNames = JSON.parse(storedNames).map((n: { votedAt: string | number | Date; vote2?: Vote | null; votedAt2?: string | number | Date; name: string; }) => ({
             ...n,
             votedAt: n.votedAt ? new Date(n.votedAt) : null,
+            vote2: n.vote2 ?? null,
+            votedAt2: n.votedAt2 ? new Date(n.votedAt2) : null,
             // Ensure metadata is populated even for stored names (in case of update)
             ...getMetadata(n.name),
         }));
@@ -111,6 +125,8 @@ export const useNameStore = defineStore('name', () => {
             gender: 'boy' as Gender,
             vote: null,
             votedAt: null,
+            vote2: null,
+            votedAt2: null,
             ...getMetadata(name),
         }));
         const girls = girlNamesData.names.map((name) => ({
@@ -119,6 +135,8 @@ export const useNameStore = defineStore('name', () => {
             gender: 'girl' as Gender,
             vote: null,
             votedAt: null,
+            vote2: null,
+            votedAt2: null,
             ...getMetadata(name),
         }));
         initialNames = [...boys, ...girls];
@@ -146,6 +164,8 @@ export const useNameStore = defineStore('name', () => {
     watch(selectedGender, (val) => localStorage.setItem(STORAGE_KEYS.SELECTED_GENDER, val));
     watch(letterFilter, (val) => localStorage.setItem(STORAGE_KEYS.LETTER_FILTER, JSON.stringify(val)), { deep: true });
     watch(names, (val) => localStorage.setItem(STORAGE_KEYS.NAMES_DATA, JSON.stringify(val)), { deep: true });
+    watch(coupleMode, (val) => localStorage.setItem(STORAGE_KEYS.COUPLE_MODE, String(val)));
+    watch(activePlayer, (val) => localStorage.setItem(STORAGE_KEYS.ACTIVE_PLAYER, String(val)));
     watch(isDarkMode, (val) => {
         localStorage.setItem(STORAGE_KEYS.IS_DARK_MODE, String(val));
         if (val) {
@@ -183,11 +203,19 @@ export const useNameStore = defineStore('name', () => {
         return selectedLetters.includes(firstLetter);
     }
 
+    function getVote(n: BabyName): Vote | null {
+        return activePlayer.value === 1 ? n.vote : n.vote2;
+    }
+
+    function getVotedAt(n: BabyName): Date | null {
+        return activePlayer.value === 1 ? n.votedAt : n.votedAt2;
+    }
+
     // Computed
     const filteredNames = computed(() => {
-        return names.value.filter((name) => 
+        return names.value.filter((name) =>
             name.gender === selectedGender.value
-            && name.vote === null
+            && getVote(name) === null
             && nameMatchesFilter(name.name, letterFilter.value),
         );
     });
@@ -198,9 +226,9 @@ export const useNameStore = defineStore('name', () => {
         return filteredNames.value;
     });
 
-    const votedCount = computed(() => 
-        names.value.filter((n) => 
-            n.vote !== null 
+    const votedCount = computed(() =>
+        names.value.filter((n) =>
+            getVote(n) !== null
             && n.gender === selectedGender.value
             && nameMatchesFilter(n.name, letterFilter.value),
         ).length,
@@ -217,12 +245,16 @@ export const useNameStore = defineStore('name', () => {
         return totalCount.value > 0 ? votedCount.value / totalCount.value : 0;
     });
 
-    const likedNames = computed(() => 
-        names.value.filter((n) => n.vote === 'like').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime()),
+    const likedNames = computed(() =>
+        names.value.filter((n) => getVote(n) === 'like').sort((a, b) => getVotedAt(b)!.getTime() - getVotedAt(a)!.getTime()),
     );
 
-    const dislikedNames = computed(() => 
-        names.value.filter((n) => n.vote === 'dislike').sort((a, b) => b.votedAt!.getTime() - a.votedAt!.getTime()),
+    const dislikedNames = computed(() =>
+        names.value.filter((n) => getVote(n) === 'dislike').sort((a, b) => getVotedAt(b)!.getTime() - getVotedAt(a)!.getTime()),
+    );
+
+    const matchedNames = computed(() =>
+        names.value.filter((n) => n.vote === 'like' && n.vote2 === 'like'),
     );
 
     // Actions
@@ -251,8 +283,13 @@ export const useNameStore = defineStore('name', () => {
     function voteName(id: string, vote: Vote) {
         const name = names.value.find((n) => n.id === id);
         if (name) {
-            name.vote = vote;
-            name.votedAt = new Date();
+            if (activePlayer.value === 1) {
+                name.vote = vote;
+                name.votedAt = new Date();
+            } else {
+                name.vote2 = vote;
+                name.votedAt2 = new Date();
+            }
             undoHistory.value.push(id);
             if (undoHistory.value.length > UNDO_HISTORY_LIMIT) {
                 undoHistory.value.shift();
@@ -266,16 +303,27 @@ export const useNameStore = defineStore('name', () => {
         const lastId = undoHistory.value.pop()!;
         const name = names.value.find((n) => n.id === lastId);
         if (name && name.gender === selectedGender.value) {
-            name.vote = null;
-            name.votedAt = null;
+            if (activePlayer.value === 1) {
+                name.vote = null;
+                name.votedAt = null;
+            } else {
+                name.vote2 = null;
+                name.votedAt2 = null;
+            }
         }
     }
 
     function toggleVote(id: string) {
         const name = names.value.find((n) => n.id === id);
-        if (name && name.vote) {
-            name.vote = name.vote === 'like' ? 'dislike' : 'like';
-            name.votedAt = new Date();
+        if (name && getVote(name)) {
+            const newVote = getVote(name) === 'like' ? 'dislike' : 'like';
+            if (activePlayer.value === 1) {
+                name.vote = newVote;
+                name.votedAt = new Date();
+            } else {
+                name.vote2 = newVote;
+                name.votedAt2 = new Date();
+            }
         }
     }
 
@@ -283,8 +331,22 @@ export const useNameStore = defineStore('name', () => {
         names.value.forEach((n) => {
             n.vote = null;
             n.votedAt = null;
+            n.vote2 = null;
+            n.votedAt2 = null;
         });
         undoHistory.value = [];
+    }
+
+    function setActivePlayer(player: Player) {
+        activePlayer.value = player;
+        undoHistory.value = [];
+    }
+
+    function toggleCoupleMode() {
+        coupleMode.value = !coupleMode.value;
+        if (!coupleMode.value) {
+            activePlayer.value = 1;
+        }
     }
 
     function toggleDarkMode() {
@@ -297,7 +359,9 @@ export const useNameStore = defineStore('name', () => {
         letterFilter,
         names,
         isDarkMode,
-        
+        coupleMode,
+        activePlayer,
+
         // Computed
         filteredNames,
         shuffledNames,
@@ -306,6 +370,7 @@ export const useNameStore = defineStore('name', () => {
         progress,
         likedNames,
         dislikedNames,
+        matchedNames,
         canUndo: computed(() => undoHistory.value.length > 0),
         undoCount: computed(() => undoHistory.value.length),
 
@@ -317,5 +382,7 @@ export const useNameStore = defineStore('name', () => {
         toggleVote,
         resetAll,
         toggleDarkMode,
+        setActivePlayer,
+        toggleCoupleMode,
     };
 });

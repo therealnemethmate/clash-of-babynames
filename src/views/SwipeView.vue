@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 
 import NameDetailsModal from '../components/NameDetailsModal.vue';
 import SwipeCard from '../components/SwipeCard.vue';
-import { useNameStore } from '../stores/name';
+import { type Player, useNameStore } from '../stores/name';
 
 const store = useNameStore();
 
@@ -47,6 +47,22 @@ const filterText = computed(() => {
                 @click="store.setGender('girl')"
             >
                 Lány
+            </button>
+        </div>
+
+        <!-- Player Switcher (Couple Mode) -->
+        <div
+            v-if="store.coupleMode"
+            class="flex bg-gray-5 rounded-lg p-1 mb-2"
+        >
+            <button
+                v-for="p in ([1, 2] as Player[])"
+                :key="p"
+                class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
+                :class="store.activePlayer === p ? 'bg-card shadow text-accent' : 'text-text-secondary'"
+                @click="store.setActivePlayer(p)"
+            >
+                {{ p === 1 ? 'Szülő 1' : 'Szülő 2' }}
             </button>
         </div>
 
