@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-import { useNameStore } from '../stores/name';
+import { type BabyName, useNameStore } from '../stores/name';
 
 const store = useNameStore();
 
@@ -10,7 +10,7 @@ const genderFilter = ref<'all' | 'boy' | 'girl'>('all');
 const searchQuery = ref('');
 
 const displayedNames = computed(() => {
-    let source;
+    let source: BabyName[];
     if (voteFilter.value === 'matches') {
         source = store.matchedNames;
     } else {

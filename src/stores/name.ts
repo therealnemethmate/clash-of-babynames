@@ -246,11 +246,11 @@ export const useNameStore = defineStore('name', () => {
     });
 
     const likedNames = computed(() =>
-        names.value.filter((n) => getVote(n) === 'like').sort((a, b) => getVotedAt(b)!.getTime() - getVotedAt(a)!.getTime()),
+        [...names.value.filter((n) => getVote(n) === 'like')].sort((a, b) => (getVotedAt(b)?.getTime() ?? 0) - (getVotedAt(a)?.getTime() ?? 0)),
     );
 
     const dislikedNames = computed(() =>
-        names.value.filter((n) => getVote(n) === 'dislike').sort((a, b) => getVotedAt(b)!.getTime() - getVotedAt(a)!.getTime()),
+        [...names.value.filter((n) => getVote(n) === 'dislike')].sort((a, b) => (getVotedAt(b)?.getTime() ?? 0) - (getVotedAt(a)?.getTime() ?? 0)),
     );
 
     const matchedNames = computed(() =>
