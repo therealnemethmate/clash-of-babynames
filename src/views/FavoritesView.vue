@@ -20,8 +20,47 @@ const displayedNames = computed(() => {
     });
 });
 
+const copyFeedback = ref('');
+
 function toggleVote(id: string) {
     store.toggleVote(id);
+}
+
+function buildExportText(): string {
+    return displayedNames.value.map((n) => n.name).join('\n');
+}
+
+function buildCsv(): string {
+    const header = 'Név,Nem,Szavazat';
+    const rows = displayedNames.value.map((n) => {
+        const gender = n.gender === 'boy' ? 'Fiú' : 'Lány';
+        const vote = n.vote === 'like' ? 'Tetszik' : 'Nem tetszik';
+        return `${n.name},${gender},${vote}`;
+    });
+    return [header, ...rows].join('\n');
+}
+
+async function copyToClipboard() {
+    const text = buildExportText();
+    try {
+        await navigator.clipboard.writeText(text);
+        copyFeedback.value = 'Másolva!';
+    } catch {
+        copyFeedback.value = 'Hiba!';
+    }
+    setTimeout(() => { copyFeedback.value = ''; }, 2000);
+}
+
+function downloadCsv() {
+    const csv = buildCsv();
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const label = voteFilter.value === 'like' ? 'kedvencek' : 'elutasitottak';
+    a.download = `nevek-${label}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 </script>
 
@@ -77,6 +116,25 @@ function toggleVote(id: string) {
                 @click="searchQuery = ''"
             >
                 ✕
+            </button>
+        </div>
+
+        <!-- Export -->
+        <div
+            v-if="displayedNames.length > 0"
+            class="flex gap-2 mb-4"
+        >
+            <button
+                class="flex-1 py-2 text-sm font-medium rounded-xl bg-card border border-transparent dark:border-gray-800 shadow-sm text-text-primary transition-colors hover:bg-gray-5"
+                @click="copyToClipboard"
+            >
+                {{ copyFeedback || 'Vágólapra másolás' }}
+            </button>
+            <button
+                class="flex-1 py-2 text-sm font-medium rounded-xl bg-card border border-transparent dark:border-gray-800 shadow-sm text-text-primary transition-colors hover:bg-gray-5"
+                @click="downloadCsv"
+            >
+                CSV letöltés
             </button>
         </div>
 
