@@ -197,6 +197,51 @@ const filterText = computed(() => {
             </template>
         </div>
 
+        <!-- Swipe Buttons -->
+        <div
+            v-if="currentCard"
+            class="flex justify-center items-center gap-6 mt-4"
+        >
+            <button
+                class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                @click="handleSwipe('left')"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-7 w-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+            <button
+                class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 text-green-500 flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                @click="handleSwipe('right')"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-7 w-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M5 13l4 4L19 7"
+                    />
+                </svg>
+            </button>
+        </div>
+
         <!-- Details Modal -->
         <NameDetailsModal
             v-if="currentCard"
