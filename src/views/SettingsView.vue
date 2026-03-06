@@ -41,6 +41,31 @@ function handleReset() {
             </div>
         </section>
 
+        <!-- Couple Mode -->
+        <section class="mb-8">
+            <h2 class="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3">
+                Páros mód
+            </h2>
+            <div class="bg-card rounded-xl shadow-sm overflow-hidden">
+                <div class="p-4 flex items-center justify-between">
+                    <span class="font-medium text-text-primary">Páros mód</span>
+                    <button
+                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
+                        :class="store.coupleMode ? 'bg-accent' : 'bg-gray-5'"
+                        @click="store.toggleCoupleMode()"
+                    >
+                        <span
+                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                            :class="store.coupleMode ? 'translate-x-6' : 'translate-x-1'"
+                        />
+                    </button>
+                </div>
+            </div>
+            <p class="text-xs text-text-secondary mt-2 px-2">
+                Bekapcsolva mindkét szülő külön-külön szavazhat, és megjelenik a közös találatok lista.
+            </p>
+        </section>
+
         <!-- Preferences -->
         <section class="mb-8">
             <h2 class="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-3">

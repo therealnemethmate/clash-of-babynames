@@ -5,12 +5,17 @@ import { useNameStore } from '../stores/name';
 
 const store = useNameStore();
 
-const voteFilter = ref<'like' | 'dislike'>('like');
+const voteFilter = ref<'like' | 'dislike' | 'matches'>('like');
 const genderFilter = ref<'all' | 'boy' | 'girl'>('all');
 const searchQuery = ref('');
 
 const displayedNames = computed(() => {
-    const source = voteFilter.value === 'like' ? store.likedNames : store.dislikedNames;
+    let source;
+    if (voteFilter.value === 'matches') {
+        source = store.matchedNames;
+    } else {
+        source = voteFilter.value === 'like' ? store.likedNames : store.dislikedNames;
+    }
     const query = searchQuery.value.trim().toLowerCase();
 
     return source.filter((n) => {
@@ -72,6 +77,14 @@ function downloadCsv() {
 
         <!-- Vote Filter -->
         <div class="flex bg-gray-5 rounded-lg p-1 mb-4">
+            <button
+                v-if="store.coupleMode"
+                class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
+                :class="voteFilter === 'matches' ? 'bg-card shadow text-purple-600' : 'text-text-secondary'"
+                @click="voteFilter = 'matches'"
+            >
+                Találatok ({{ store.matchedNames.length }})
+            </button>
             <button
                 class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
                 :class="voteFilter === 'like' ? 'bg-card shadow text-green-600' : 'text-text-secondary'"
@@ -145,9 +158,12 @@ function downloadCsv() {
                 class="flex flex-col items-center justify-center h-64 text-center text-text-secondary"
             >
                 <div class="text-4xl mb-4 text-gray-300 dark:text-gray-700">
-                    {{ voteFilter === 'like' ? '❤' : '💔' }}
+                    {{ voteFilter === 'matches' ? '💜' : (voteFilter === 'like' ? '❤' : '💔') }}
                 </div>
-                <p v-if="voteFilter === 'like'">
+                <p v-if="voteFilter === 'matches'">
+                    Még nincs közös találat.
+                </p>
+                <p v-else-if="voteFilter === 'like'">
                     Még nincs kedvenc neved.
                 </p>
                 <p v-else>
@@ -169,7 +185,8 @@ function downloadCsv() {
                         <span class="text-lg font-bold text-text-primary">{{ name.name }}</span>
                     </div>
           
-                    <button 
+                    <button
+                        v-if="voteFilter !== 'matches'"
                         class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
                         :class="voteFilter === 'like' ? 'text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30' : 'text-green-500 hover:bg-green-50 dark:hover:bg-green-900/30'"
                         @click="toggleVote(name.id)"
