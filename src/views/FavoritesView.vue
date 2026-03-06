@@ -7,12 +7,17 @@ const store = useNameStore();
 
 const voteFilter = ref<'like' | 'dislike'>('like');
 const genderFilter = ref<'all' | 'boy' | 'girl'>('all');
+const searchQuery = ref('');
 
 const displayedNames = computed(() => {
     const source = voteFilter.value === 'like' ? store.likedNames : store.dislikedNames;
-  
-    if (genderFilter.value === 'all') return source;
-    return source.filter((n) => n.gender === genderFilter.value);
+    const query = searchQuery.value.trim().toLowerCase();
+
+    return source.filter((n) => {
+        if (genderFilter.value !== 'all' && n.gender !== genderFilter.value) return false;
+        if (query && !n.name.toLowerCase().includes(query)) return false;
+        return true;
+    });
 });
 
 function toggleVote(id: string) {
@@ -54,6 +59,24 @@ function toggleVote(id: string) {
                 @click="genderFilter = option"
             >
                 {{ option === 'all' ? 'Mind' : (option === 'boy' ? 'Fiú' : 'Lány') }}
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="relative mb-4">
+            <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Név keresése..."
+                class="w-full px-4 py-2 pl-10 rounded-xl bg-card border border-transparent dark:border-gray-800 text-text-primary placeholder-text-secondary shadow-sm focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-sm">🔍</span>
+            <button
+                v-if="searchQuery"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary text-sm"
+                @click="searchQuery = ''"
+            >
+                ✕
             </button>
         </div>
 
