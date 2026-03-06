@@ -102,12 +102,18 @@ const filterText = computed(() => {
             </div>
 
             <button
-                class="w-10 h-10 rounded-full bg-card shadow flex items-center justify-center transition-opacity text-text-primary"
+                class="relative w-10 h-10 rounded-full bg-card shadow flex items-center justify-center transition-opacity text-text-primary"
                 :class="{ 'opacity-50 cursor-not-allowed': !store.canUndo }"
                 :disabled="!store.canUndo"
                 @click="store.undoLastVote"
             >
                 <span class="text-xl leading-none mt-1">↩</span>
+                <span
+                    v-if="store.undoCount > 1"
+                    class="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center"
+                >
+                    {{ store.undoCount }}
+                </span>
             </button>
         </div>
 

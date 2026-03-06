@@ -139,7 +139,8 @@ export const useNameStore = defineStore('name', () => {
         // Shuffling here (once per session) is stable during swipe.
         shuffleArray(names.value);
     }
-    const lastVotedId = ref<string | null>(null); // For undo functionality
+    const UNDO_HISTORY_LIMIT = 10;
+    const undoHistory = ref<string[]>([]); // Stack of voted IDs for multi-level undo
 
     // Persistence
     watch(selectedGender, (val) => localStorage.setItem(STORAGE_KEYS.SELECTED_GENDER, val));
@@ -252,18 +253,21 @@ export const useNameStore = defineStore('name', () => {
         if (name) {
             name.vote = vote;
             name.votedAt = new Date();
-            lastVotedId.value = id;
+            undoHistory.value.push(id);
+            if (undoHistory.value.length > UNDO_HISTORY_LIMIT) {
+                undoHistory.value.shift();
+            }
         }
     }
 
     function undoLastVote() {
-        if (!lastVotedId.value) return;
-        
-        const name = names.value.find((n) => n.id === lastVotedId.value);
+        if (undoHistory.value.length === 0) return;
+
+        const lastId = undoHistory.value.pop()!;
+        const name = names.value.find((n) => n.id === lastId);
         if (name && name.gender === selectedGender.value) {
             name.vote = null;
             name.votedAt = null;
-            lastVotedId.value = null;
         }
     }
 
@@ -280,7 +284,7 @@ export const useNameStore = defineStore('name', () => {
             n.vote = null;
             n.votedAt = null;
         });
-        lastVotedId.value = null;
+        undoHistory.value = [];
     }
 
     function toggleDarkMode() {
@@ -302,7 +306,8 @@ export const useNameStore = defineStore('name', () => {
         progress,
         likedNames,
         dislikedNames,
-        canUndo: computed(() => !!lastVotedId.value),
+        canUndo: computed(() => undoHistory.value.length > 0),
+        undoCount: computed(() => undoHistory.value.length),
 
         // Actions
         setGender,
