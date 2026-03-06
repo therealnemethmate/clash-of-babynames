@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import NameDetailsModal from '../components/NameDetailsModal.vue';
 import SwipeCard from '../components/SwipeCard.vue';
@@ -16,6 +16,20 @@ function handleSwipe(direction: 'left' | 'right') {
     if (!currentCard.value) return;
     store.voteName(currentCard.value.id, direction === 'right' ? 'like' : 'dislike');
 }
+
+function handleKeydown(e: KeyboardEvent) {
+    if (showDetails.value) return;
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        handleSwipe('right');
+    } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        handleSwipe('left');
+    } else if (e.key === 'z' || e.key === 'Z') {
+        store.undoLastVote();
+    }
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown));
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
 
 function clearFilter() {
     store.toggleLetterFilter('NONE');
