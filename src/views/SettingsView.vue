@@ -14,7 +14,7 @@ function handleReset() {
 </script>
 
 <template>
-    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-4 overflow-y-auto">
+    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-3 sm:p-4 overflow-y-auto">
         <h1 class="text-2xl font-bold text-center mb-6 text-text-primary">
             Beállítások
         </h1>

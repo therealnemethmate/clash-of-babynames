@@ -45,18 +45,18 @@ const filterText = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-2 sm:p-4">
+    <div class="flex flex-col h-full max-w-lg mx-auto w-full p-3 sm:p-4 gap-2 sm:gap-3">
         <!-- Gender Toggle -->
-        <div class="flex bg-gray-5 rounded-lg p-1 mb-2">
+        <div class="flex bg-gray-5 rounded-xl p-1">
             <button
-                class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
+                class="flex-1 py-2 text-sm font-medium rounded-lg transition-all"
                 :class="store.selectedGender === 'boy' ? 'bg-card shadow text-blue-600' : 'text-text-secondary'"
                 @click="store.setGender('boy')"
             >
                 Fiú
             </button>
             <button
-                class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
+                class="flex-1 py-2 text-sm font-medium rounded-lg transition-all"
                 :class="store.selectedGender === 'girl' ? 'bg-card shadow text-pink-600' : 'text-text-secondary'"
                 @click="store.setGender('girl')"
             >
@@ -67,12 +67,12 @@ const filterText = computed(() => {
         <!-- Player Switcher (Couple Mode) -->
         <div
             v-if="store.coupleMode"
-            class="flex bg-gray-5 rounded-lg p-1 mb-2"
+            class="flex bg-gray-5 rounded-xl p-1"
         >
             <button
                 v-for="p in ([1, 2] as Player[])"
                 :key="p"
-                class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all"
+                class="flex-1 py-2 text-sm font-medium rounded-lg transition-all"
                 :class="store.activePlayer === p ? 'bg-card shadow text-accent' : 'text-text-secondary'"
                 @click="store.setActivePlayer(p)"
             >
@@ -83,7 +83,7 @@ const filterText = computed(() => {
         <!-- Filter Indicator -->
         <div
             v-if="store.letterFilter.length > 0"
-            class="flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-3 py-2 rounded-lg mb-2 text-sm animate-fade-in"
+            class="flex items-center justify-between bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-3 py-2 rounded-xl text-sm animate-fade-in"
         >
             <div class="flex items-center">
                 <span class="mr-2">🔽</span>
@@ -98,7 +98,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Progress Bar -->
-        <div class="mb-2">
+        <div class="mb-1">
             <div class="h-2 bg-gray-5 rounded-full overflow-hidden">
                 <div
                     class="h-full transition-all duration-500 ease-out"
@@ -112,7 +112,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Stats Row -->
-        <div class="flex justify-between items-center px-4 mb-4">
+        <div class="flex justify-between items-center px-2 sm:px-4 mb-2">
             <div class="text-center">
                 <div class="text-lg font-bold text-text-primary">
                     {{ store.totalCount - store.votedCount }}
@@ -148,7 +148,7 @@ const filterText = computed(() => {
         </div>
 
         <!-- Card Stack -->
-        <div class="relative flex-1 w-full max-h-[400px] min-h-[280px]">
+        <div class="relative flex-1 w-full max-h-[460px] min-h-[320px] sm:min-h-[360px]">
             <div
                 v-if="!currentCard"
                 class="flex flex-col items-center justify-center h-full text-center p-6 text-text-primary"
@@ -200,10 +200,10 @@ const filterText = computed(() => {
         <!-- Swipe Buttons -->
         <div
             v-if="currentCard"
-            class="flex justify-center items-center gap-6 mt-4"
+            class="grid grid-cols-2 gap-4 mt-2 mb-1"
         >
             <button
-                class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                class="h-14 rounded-2xl bg-red-100 dark:bg-red-900/30 text-red-500 flex items-center justify-center shadow-md active:scale-95 transition-transform"
                 @click="handleSwipe('left')"
             >
                 <svg
@@ -222,7 +222,7 @@ const filterText = computed(() => {
                 </svg>
             </button>
             <button
-                class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 text-green-500 flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-transform"
+                class="h-14 rounded-2xl bg-green-100 dark:bg-green-900/30 text-green-500 flex items-center justify-center shadow-md active:scale-95 transition-transform"
                 @click="handleSwipe('right')"
             >
                 <svg
