@@ -17,8 +17,8 @@ import TheTabBar from './components/TheTabBar.vue';
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100dvh;
+  width: 100%;
   overflow: hidden;
   background-color: var(--color-background);
 }
@@ -26,7 +26,7 @@ import TheTabBar from './components/TheTabBar.vue';
 .main-content {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 80px; /* Space for tab bar */
+  padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }

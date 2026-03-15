@@ -7,13 +7,13 @@ const tabs = [
 </script>
 
 <template>
-    <nav class="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-5 pb-safe">
-        <div class="flex justify-around items-center h-16">
+    <nav class="tabbar fixed bottom-0 left-0 right-0 z-40 bg-card/95 border-t border-gray-5 pb-safe backdrop-blur-sm">
+        <div class="mx-auto flex justify-around items-center h-16 max-w-lg">
             <router-link
                 v-for="tab in tabs"
                 :key="tab.name"
                 :to="{ name: tab.name }"
-                class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-accent transition-colors"
+                class="flex flex-col items-center justify-center w-full h-full text-text-secondary hover:text-accent transition-colors active:scale-95"
                 active-class="text-accent"
             >
                 <svg
@@ -37,6 +37,10 @@ const tabs = [
 </template>
 
 <style scoped>
+.tabbar {
+  height: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+}
+
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
